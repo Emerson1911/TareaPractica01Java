@@ -6,9 +6,14 @@ package grupo.practicatarea01;
 
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.TableRowSorter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -108,19 +113,19 @@ public class CCuenta {
             e.printStackTrace();
         }
 
-        // Verificar si se proporcionó un valor para Padre
+       
         String padreSeleccionado = (String) paramPadre.getSelectedItem();
         if (padreSeleccionado != null && !padreSeleccionado.isEmpty()) {
             try {
-                // Si se proporcionó un valor, convertirlo a entero y establecerlo como Padre
+               
                 setPadre(Integer.parseInt(padreSeleccionado));
             } catch (NumberFormatException e) {
                 System.err.println("Error: el valor seleccionado en el JComboBox no es un número válido.");
                 e.printStackTrace();
             }
         } else {
-            // Si no se proporcionó un valor para Padre, establecerlo como 0 (o cualquier valor que desees para representar nulo en la base de datos)
-            setPadre(0); // Aquí puedes establecer cualquier valor que represente nulo en tu base de datos
+           
+            setPadre(0); 
         }
 
         // Insertar la cuenta en la base de datos
@@ -133,7 +138,7 @@ public class CCuenta {
             cs.setString(2, getNombre());
             cs.setString(3, getTipo());
             cs.setInt(4, getNivel());
-            // Pasar null como valor de Padre si es 0 (o cualquier otro valor que hayas elegido para representar nulo)
+           
             cs.setObject(5, getPadre() != 0 ? getPadre() : null);
 
             cs.execute();
@@ -141,6 +146,48 @@ public class CCuenta {
             JOptionPane.showMessageDialog(null, "Se insertó correctamente la Cuenta");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al insertar la Cuenta: " + e.toString());
+        }
+    }
+    
+    public void MostrarCuenta(JTable paramTablaTotalCuenta){
+        CConexion conexion = new CConexion();
+        
+        DefaultTableModel modelo = new DefaultTableModel();
+        
+        TableRowSorter<TableModel> ordenarTabla= new TableRowSorter<TableModel>(modelo);
+        paramTablaTotalCuenta.setRowSorter(ordenarTabla);
+        
+        var  sql="";
+        modelo.addColumn("Id");
+        modelo.addColumn("NumeroCuenta");
+        modelo.addColumn("Nombre");
+        modelo.addColumn("Tipo");
+        modelo.addColumn("Nivel");
+        modelo.addColumn("Padre");
+        
+        paramTablaTotalCuenta.setModel(modelo);
+        
+        sql = "SELECT * FROM Cuentas;";
+        
+        String[] datos = new String[6];
+        Statement st;
+        try {
+            st = conexion.obtenerConexion().createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+               datos[0]=rs.getString(1);
+               datos[1]=rs.getString(2);
+               datos[2]=rs.getString(3);
+               datos[3]=rs.getString(4);
+               datos[4]=rs.getString(5);
+               datos[5]=rs.getString(6);
+               
+               modelo.addRow(datos);
+               
+            }
+            paramTablaTotalCuenta.setModel(modelo);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al mostrar los registros: " + e.toString());
         }
     }
 

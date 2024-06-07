@@ -15,7 +15,9 @@ public class FrmCuentas extends javax.swing.JFrame {
      */
     public FrmCuentas() {
         initComponents();
-        
+        CCuenta cuenta = new CCuenta();
+        cuenta.MostrarCuenta(tbTotalCuenta);
+        cuenta.cargarDatosPadre(cbPadre);
     }
 
     /**
