@@ -11,6 +11,7 @@ package grupo.practicatarea01;
 public class PracticaTarea01 {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        FrmCuentas cuentas = new FrmCuentas();
+        cuentas.setVisible(true);
     }
 }
