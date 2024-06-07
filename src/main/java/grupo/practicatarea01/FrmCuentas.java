@@ -15,6 +15,7 @@ public class FrmCuentas extends javax.swing.JFrame {
      */
     public FrmCuentas() {
         initComponents();
+        this.setLocationRelativeTo(null);
         CCuenta cuenta = new CCuenta();
         cuenta.MostrarCuenta(tbTotalCuenta);
         cuenta.cargarDatosPadre(cbPadre);
@@ -76,8 +77,18 @@ public class FrmCuentas extends javax.swing.JFrame {
         });
 
         btbModificar.setText("Modificar");
+        btbModificar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btbModificarActionPerformed(evt);
+            }
+        });
 
         btnEliminar.setText("Eliminar");
+        btnEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -157,6 +168,11 @@ public class FrmCuentas extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tbTotalCuenta.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbTotalCuentaMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tbTotalCuenta);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -172,8 +188,8 @@ public class FrmCuentas extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(195, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -204,6 +220,7 @@ public class FrmCuentas extends javax.swing.JFrame {
         // TODO add your handling code here:
         CCuenta cuenta = new CCuenta();
         cuenta.InsertarCuenta(txtNumeroCuenta, txtNombre, txtTipo, txtNivel,cbPadre);
+        cuenta.MostrarCuenta(tbTotalCuenta);
         
     }//GEN-LAST:event_btbGuardarActionPerformed
 
@@ -212,6 +229,26 @@ public class FrmCuentas extends javax.swing.JFrame {
         CCuenta cuenta = new CCuenta();
         cuenta.cargarDatosPadre(cbPadre);
     }//GEN-LAST:event_cbPadreActionPerformed
+
+    private void tbTotalCuentaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbTotalCuentaMouseClicked
+        // TODO add your handling code here:
+         CCuenta cuenta = new CCuenta();
+        cuenta.SeleccionarCuenta(tbTotalCuenta, txtTipo, txtNumeroCuenta, txtNombre, txtTipo, txtNivel, cbPadre);
+    }//GEN-LAST:event_tbTotalCuentaMouseClicked
+
+    private void btbModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btbModificarActionPerformed
+        // TODO add your handling code here:
+        CCuenta cuenta = new CCuenta();
+        cuenta.ModificarCuenta(txtNumeroCuenta, txtNombre, txtTipo, txtNivel, cbPadre);
+        cuenta.MostrarCuenta(tbTotalCuenta);
+    }//GEN-LAST:event_btbModificarActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        // TODO add your handling code here:
+        CCuenta cuenta = new CCuenta();
+        cuenta.EliminarCuenta(txtNumeroCuenta);
+        cuenta.MostrarCuenta(tbTotalCuenta);
+    }//GEN-LAST:event_btnEliminarActionPerformed
 
     /**
      * @param args the command line arguments

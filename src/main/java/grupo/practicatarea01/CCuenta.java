@@ -6,7 +6,9 @@ package grupo.practicatarea01;
 
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -75,8 +77,8 @@ public class CCuenta {
     public void setPadre(int padre) {
         this.padre = padre;
     }
-    
-     // Método para cargar los datos en un JComboBox
+
+    // Método para cargar los datos en un JComboBox
     public void cargarDatosPadre(JComboBox<String> comboBox) {
         // Limpiar el JComboBox antes de cargar los nuevos datos
         comboBox.removeAllItems();
@@ -101,7 +103,6 @@ public class CCuenta {
         }
     }
 
-
     public void InsertarCuenta(JTextField paramNumeroCuenta, JTextField paramNombre, JTextField paramTipo, JTextField paramNivel, JComboBox<String> paramPadre) {
         setNumeroCuenta(paramNumeroCuenta.getText());
         setNombre(paramNombre.getText());
@@ -113,19 +114,18 @@ public class CCuenta {
             e.printStackTrace();
         }
 
-       
         String padreSeleccionado = (String) paramPadre.getSelectedItem();
         if (padreSeleccionado != null && !padreSeleccionado.isEmpty()) {
             try {
-               
+
                 setPadre(Integer.parseInt(padreSeleccionado));
             } catch (NumberFormatException e) {
                 System.err.println("Error: el valor seleccionado en el JComboBox no es un número válido.");
                 e.printStackTrace();
             }
         } else {
-           
-            setPadre(0); 
+
+            setPadre(0);
         }
 
         // Insertar la cuenta en la base de datos
@@ -138,7 +138,7 @@ public class CCuenta {
             cs.setString(2, getNombre());
             cs.setString(3, getTipo());
             cs.setInt(4, getNivel());
-           
+
             cs.setObject(5, getPadre() != 0 ? getPadre() : null);
 
             cs.execute();
@@ -148,46 +148,136 @@ public class CCuenta {
             JOptionPane.showMessageDialog(null, "Error al insertar la Cuenta: " + e.toString());
         }
     }
-    
-    public void MostrarCuenta(JTable paramTablaTotalCuenta){
+
+    public void MostrarCuenta(JTable paramTablaTotalCuenta) {
         CConexion conexion = new CConexion();
-        
+
         DefaultTableModel modelo = new DefaultTableModel();
-        
-        TableRowSorter<TableModel> ordenarTabla= new TableRowSorter<TableModel>(modelo);
+
+        TableRowSorter<TableModel> ordenarTabla = new TableRowSorter<TableModel>(modelo);
         paramTablaTotalCuenta.setRowSorter(ordenarTabla);
-        
-        var  sql="";
+
+        var sql = "";
         modelo.addColumn("Id");
         modelo.addColumn("NumeroCuenta");
         modelo.addColumn("Nombre");
         modelo.addColumn("Tipo");
         modelo.addColumn("Nivel");
         modelo.addColumn("Padre");
-        
+
         paramTablaTotalCuenta.setModel(modelo);
-        
+
         sql = "SELECT * FROM Cuentas;";
-        
+
         String[] datos = new String[6];
         Statement st;
         try {
             st = conexion.obtenerConexion().createStatement();
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()) {
-               datos[0]=rs.getString(1);
-               datos[1]=rs.getString(2);
-               datos[2]=rs.getString(3);
-               datos[3]=rs.getString(4);
-               datos[4]=rs.getString(5);
-               datos[5]=rs.getString(6);
-               
-               modelo.addRow(datos);
-               
+                datos[0] = rs.getString(1);
+                datos[1] = rs.getString(2);
+                datos[2] = rs.getString(3);
+                datos[3] = rs.getString(4);
+                datos[4] = rs.getString(5);
+                datos[5] = rs.getString(6);
+
+                modelo.addRow(datos);
+
             }
             paramTablaTotalCuenta.setModel(modelo);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al mostrar los registros: " + e.toString());
+        }
+    }
+
+    public void SeleccionarCuenta(JTable paramTablaCuenta, JTextField paramId, JTextField paramNumeroCuenta, JTextField paramNombre, JTextField paramTipo, JTextField paramNivel, JComboBox<String> paramPadre) {
+        try {
+            int fila = paramTablaCuenta.getSelectedRow();
+            if (fila >= 0) {
+                paramId.setText((paramTablaCuenta.getValueAt(fila, 0)).toString());
+                paramNumeroCuenta.setText((paramTablaCuenta.getValueAt(fila, 1)).toString());
+                paramNombre.setText((paramTablaCuenta.getValueAt(fila, 2)).toString());
+                paramTipo.setText((paramTablaCuenta.getValueAt(fila, 3)).toString());
+                paramNivel.setText((paramTablaCuenta.getValueAt(fila, 4)).toString());
+                Object valorPadre = paramTablaCuenta.getValueAt(fila, 5);
+                if (valorPadre != null) {
+                    paramPadre.setSelectedItem(valorPadre.toString());
+                } else {
+                    paramPadre.setSelectedItem(null); // Establecer el JComboBox como nulo si el valor es nulo
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Fila No seleccionada");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error de seleccion, error: " + e.toString());
+        }
+    }
+
+    public void ModificarCuenta(JTextField paramNumeroCuenta, JTextField paramNombre, JTextField paramTipo, JTextField paramNivel, JComboBox<String> paramPadre) {
+        setNumeroCuenta(paramNumeroCuenta.getText());
+        setNombre(paramNombre.getText());
+        setTipo(paramTipo.getText());
+        setNivel(Integer.parseInt(paramNivel.getText()));
+
+        // Obtener el valor seleccionado del JComboBox
+        Object itemSeleccionado = paramPadre.getSelectedItem();
+        Integer padre = null; // Usar un Integer en lugar de int para permitir valores nulos
+        if (itemSeleccionado != null) {
+            try {
+                padre = Integer.parseInt(itemSeleccionado.toString());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "El valor seleccionado en el JComboBox no es válido.");
+                return; // Salir del método si no se puede convertir a entero
+            }
+        }
+        setPadre(padre);
+
+        CConexion conexion = new CConexion();
+
+        String consulta = "UPDATE Cuentas SET Nombre = ?, Tipo = ?, Nivel = ?, Padre = ? WHERE NumeroCuenta = ?;";
+
+        try {
+            CallableStatement cs = conexion.obtenerConexion().prepareCall(consulta);
+            cs.setString(1, getNombre());
+            cs.setString(2, getTipo());
+            cs.setInt(3, getNivel());
+            if (getPadre() != null) {
+                cs.setInt(4, getPadre()); // Si el valor de Padre no es nulo, establecerlo en la consulta
+            } else {
+                cs.setNull(4, Types.INTEGER); // Si el valor de Padre es nulo, establecerlo como NULL en la consulta
+            }
+            cs.setString(5, getNumeroCuenta());
+
+            cs.execute();
+            JOptionPane.showMessageDialog(null, "Modificación exitosa");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al Modificar, error: " + e.toString());
+        }
+    }
+
+//    public void EliminarCuenta() {
+//        CConexion conexion = new CConexion();
+//        String consulta = "DELETE FROM Cuentas;";
+//        try {
+//            CallableStatement cs = conexion.obtenerConexion().prepareCall(consulta);
+//            cs.execute();
+//            JOptionPane.showMessageDialog(null, "Eliminación exitosa de todas las cuentas");
+//        } catch (SQLException e) {
+//            JOptionPane.showMessageDialog(null, "Error al Eliminar, error: " + e.toString());
+//        }
+//    }
+    public void EliminarCuenta(JTextField paramNumeroCuenta) {
+        String numeroCuenta = paramNumeroCuenta.getText();
+        CConexion conexion = new CConexion();
+        String consulta = "DELETE FROM Cuentas WHERE NumeroCuenta = ?;";
+        try {
+            CallableStatement cs = conexion.obtenerConexion().prepareCall(consulta);
+            cs.setString(1, numeroCuenta);
+            cs.execute();
+            JOptionPane.showMessageDialog(null, "Cuenta " + numeroCuenta + " eliminada exitosamente");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al eliminar la cuenta " + numeroCuenta + ": " + e.toString());
         }
     }
 
